@@ -76,10 +76,7 @@ if lang == "English":
     # 模型性能说明（可展开）
     with st.expander("Model Performance Notes"):
         st.markdown("""
-        - (A) Decision curve analysis (DCA) in the training cohort. The Y-axis indicates net benefit. The solid line represents the clinical net benefit of using the prediction model across threshold probabilities. The grey dashed line assumes all patients are positive; the horizontal line assumes none are positive. The model demonstrates clinical utility between 0.25–0.8.
-        - (B) DCA in the validation cohort, confirming consistent clinical benefit.
-        - (C) Calibration curve of the training cohort. The diagonal dashed line represents the ideal prediction. The red line indicates the apparent performance of the model on the training data, and the blue line shows the bias-corrected performance via bootstrap resampling (1,000 iterations). Hosmer–Lemeshow test: p=0.249.
-        - (D) Calibration curve of the validation cohort, with similar annotation as in (C). Hosmer–Lemeshow test: p=0.241.
+        Decision curve analysis (DCA) shows clinical net benefit across threshold probabilities of 0.25–0.8 in both training and validation cohorts. Calibration curves indicate good agreement between predicted and observed probabilities, with Hosmer–Lemeshow test p=0.249 in the training cohort and p=0.241 in the validation cohort (bias-corrected via bootstrap resampling with 1,000 iterations).
         """)
 
     # 页脚
@@ -87,8 +84,8 @@ if lang == "English":
         """
         <hr style="margin-top:30px;margin-bottom:10px;">
         <p style="color:gray; font-size:13px; text-align:center;">
-        Predicting Airway Hyperresponsiveness in Preschool Asthma: A Nomogram Based on FeNO and Tidal Breathing Parameters<br>
-        <b>Jiangjiao Qin</b>, Children's Hospital of Chongqing Medical University
+        Development and Validation of a Clinical-Physiological Model for Predicting Airway Hyperresponsiveness in Preschool Children<br>
+        <b>Jiangjiao Qin et al.</b>, Children's Hospital of Chongqing Medical University
         </p>
         """,
         unsafe_allow_html=True
@@ -146,10 +143,7 @@ else:
     # 模型性能说明（可展开）
     with st.expander("模型性能说明"):
         st.markdown("""
-        - (A) 训练队列的决策曲线分析 (DCA)。Y轴表示净收益。实线表示使用预测模型在阈值概率下的临床净收益。灰色虚线假设所有患者均为阳性；水平线假设无一为阳性。该模型在0.25–0.8之间显示临床效用。
-        - (B) 验证队列的DCA，确认一致的临床益处。
-        - (C) 训练队列的校准曲线。对角虚线表示理想预测。红线表示模型在训练数据上的表观性能，蓝线显示通过bootstrap重采样（1,000次迭代）的偏差校正性能。Hosmer–Lemeshow测试：p=0.249。
-        - (D) 验证队列的校准曲线，与(C)类似标注。Hosmer–Lemeshow测试：p=0.241。
+        决策曲线分析 (DCA) 显示在训练和验证队列中，模型在0.25–0.8的阈值概率下具有临床净收益。校准曲线显示预测概率与观察概率之间有良好的一致性，Hosmer–Lemeshow测试在训练队列中p=0.249，在验证队列中p=0.241（通过1,000次bootstrap重采样的偏差校正）。
         """)
 
     # 页脚
@@ -157,8 +151,8 @@ else:
         """
         <hr style="margin-top:30px;margin-bottom:10px;">
         <p style="color:gray; font-size:13px; text-align:center;">
-        学龄前哮喘儿童气道高反应性预测模型：基于FeNO与潮气呼吸参数的列线图<br>
-        <b>秦江蛟</b>，重庆医科大学附属儿童医院
+        学龄前儿童气道高反应性预测的临床-生理模型的开发与验证<br>
+        <b>秦江蛟 等</b>，重庆医科大学附属儿童医院
         </p>
         """,
         unsafe_allow_html=True
