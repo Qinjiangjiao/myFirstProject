@@ -1,136 +1,109 @@
-
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 
 # ============ 页面配置 ============
 st.set_page_config(
-    page_title="AHR Nomogram",
+    page_title="AHR Nomogram v2026",
     layout="centered",
     page_icon="🫁"
 )
 
-# ============ 多语言切换 ============
-lang = st.sidebar.radio("🌐 Language / 语言", ["English", "中文"])
+# ============ 核心参数 ============
+# 根据 2026.1.5 统计结果校准
+B0 = 0.87  # 截距 (Intercept)
+COEFFICIENTS = {
+    "FeNO": 0.03,
+    "Age": -0.04,
+    "FamilyHistory": 1.36,
+    "Rhinitis": 0.53,
+    "Allergy": 0.85,
+    "TPTEF_TE": -0.03,
+    "Wheeze": 1.35
+}
 
-APPLE_CMAP = "RdYlGn_r"  # Apple极简风格配色：低风险绿，高风险红
-
-# ============ 英文界面 ============
-if lang == "English":
-    st.markdown("<h2 style='text-align:center;'>Nomogram for Predicting Airway Hyperresponsiveness (AHR)</h2>", unsafe_allow_html=True)
-    st.markdown("Enter the values below to estimate the probability of AHR.")
-
-    FeNO = st.number_input("FeNO (ppb)", min_value=0, max_value=200, value=20, step=1)
-    RR = st.number_input("Respiratory Rate (bpm)", min_value=10, max_value=80, value=25, step=1)
-    PTEF = st.number_input("PTEF/TEF25 (%)", min_value=40, max_value=350, value=150, step=1)
-    Wheeze = st.selectbox("Wheeze", options=["No", "Yes"])
-
-    # 模型参数
-    b0 = -10
-    b1, b2, b3, b4 = 0.06, 0.09, 0.01, 1.80
-    wheeze_val = 1 if Wheeze == "Yes" else 0
-
-    logit_p = b0 + b1*FeNO + b2*RR + b3*PTEF + b4*wheeze_val
-    logit_p = np.clip(logit_p, -50, 50)
-    p = 1 / (1 + np.exp(-logit_p))
-    p = float(p)
-
-    st.markdown(f"### Predicted Probability of AHR: **{p*100:.1f}%**")
-
-    if p < 0.3:
-        risk_level = "Low risk"
-    elif p < 0.7:
-        risk_level = "Moderate risk"
-    else:
-        risk_level = "High risk"
-    st.info(f"**Risk Level:** {risk_level}")
-
-    # 风险条
-    fig, ax = plt.subplots(figsize=(6, 0.6))
-    gradient = np.linspace(0, 1, 256).reshape(1, -1)
-    ax.imshow(gradient, aspect='auto', cmap=APPLE_CMAP, extent=[0, 100, 0, 1])
-    ax.set_xlim(0, 100)
-    ax.set_xticks(np.arange(0, 101, 10))
-    ax.set_yticks([])
-    ax.set_xlabel("AHR Risk (%)", fontsize=10)
-    ax.axvline(p*100, color='black', linestyle='--', linewidth=2)
-    ax.text(p*100, 1.1, f"{p*100:.1f}%", ha='center', va='bottom', fontsize=10, color='black')
-    st.pyplot(fig)
-
-    # 页脚
-    st.markdown(
-        """
-        <hr style="margin-top:30px;margin-bottom:10px;">
-        <p style="color:gray; font-size:13px; text-align:center;">
-        Predicting Airway Hyperresponsiveness in Preschool Asthma: A Nomogram Based on FeNO and Tidal Breathing Parameters<br>
-        <b>Jiangjiao Qin</b>, et al., Children's Hospital of Chongqing Medical University
-        </p>
-        """,
-        unsafe_allow_html=True
-    )
-
-# ============ 中文界面 ============
-else:
-    st.markdown("<h2 style='text-align:center;'>预测气道高反应性的列线图 (AHR Nomogram)</h2>", unsafe_allow_html=True)
-    st.markdown("请输入以下参数以估算气道高反应性的概率：")
-
-    FeNO = st.number_input("FeNO (ppb)", min_value=0, max_value=200, value=20, step=1)
-    RR = st.number_input("呼吸频率 (次/分)", min_value=10, max_value=80, value=25, step=1)
-    PTEF = st.number_input("PTEF/TEF25 (%)", min_value=40, max_value=350, value=150, step=1)
-    Wheeze = st.selectbox("是否存在喘息", options=["否", "是"])
-
-    # 模型参数
-    b0 = -10
-    b1, b2, b3, b4 = 0.06, 0.09, 0.01, 1.80
-    wheeze_val = 1 if Wheeze == "是" else 0
-
-    logit_p = b0 + b1*FeNO + b2*RR + b3*PTEF + b4*wheeze_val
-    logit_p = np.clip(logit_p, -50, 50)
-    p = 1 / (1 + np.exp(-logit_p))
-    p = float(p)
-
-    st.markdown(f"### 预测AHR概率：**{p*100:.1f}%**")
-
-    if p < 0.3:
-        risk_level = "低风险"
-    elif p < 0.7:
-        risk_level = "中等风险"
-    else:
-        risk_level = "高风险"
-    st.info(f"**风险等级：** {risk_level}")
-
-    fig, ax = plt.subplots(figsize=(6, 0.6))
-    gradient = np.linspace(0, 1, 256).reshape(1, -1)
-    ax.imshow(gradient, aspect='auto', cmap=APPLE_CMAP, extent=[0, 100, 0, 1])
-    ax.set_xlim(0, 100)
-    ax.set_xticks(np.arange(0, 101, 10))
-    ax.set_yticks([])
-    ax.set_xlabel("AHR风险（%）", fontsize=10)
-    ax.axvline(p*100, color='black', linestyle='--', linewidth=2)
-    ax.text(p*100, 1.1, f"{p*100:.1f}%", ha='center', va='bottom', fontsize=10, color='black')
-    st.pyplot(fig)
-
-    st.markdown(
-        """
-        <hr style="margin-top:30px;margin-bottom:10px;">
-        <p style="color:gray; font-size:13px; text-align:center;">
-        学龄前哮喘儿童气道高反应性预测模型：基于FeNO与潮气呼吸参数的列线图<br>
-        <b>秦江蛟</b> 等，重庆医科大学附属儿童医院
-        </p>
-        """,
-        unsafe_allow_html=True
-    )
-
-# ============ 页面CSS微调 ============
-st.markdown(
-    """
-    <style>
-    .block-container {
-        max-width: 700px;
-        margin: auto;
-        padding-top: 2rem;
+# ============ 多语言内容 ============
+CONTENT = {
+    "English": {
+        "title": "AHR Prediction Nomogram (7-Parameter Model)",
+        "desc": "Predicting Airway Hyperresponsiveness in Preschool Children",
+        "prob_text": "Predicted Probability of AHR:",
+        "risk_level": "Risk Level:",
+        "levels": ["Low", "Moderate", "High"],
+        "labels": ["FeNO (ppb)", "Age (Months)", "TPTEF/TE (%)", "Wheeze", 
+                   "Family History of Asthma", "History of Rhinitis", "History of Allergy"],
+        "footer": "<b>Jiangjiao Qin</b>, et al., Children's Hospital of Chongqing Medical University"
+    },
+    "中文": {
+        "title": "气道高反应性预测列线图 (7参数模型)",
+        "desc": "学龄前哮喘儿童气道高反应性风险评估",
+        "prob_text": "预测 AHR 概率：",
+        "risk_level": "风险等级：",
+        "levels": ["低风险", "中等风险", "高风险"],
+        "labels": ["FeNO (ppb)", "月龄 (Months)", "TPTEF/TE (%)", "当前喘息", 
+                   "哮喘家族史", "鼻炎史", "过敏史"],
+        "footer": "<b>秦江蛟</b> 等，重庆医科大学附属儿童医院"
     }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+}
+
+lang = st.sidebar.radio("🌐 Language / 语言", ["English", "中文"])
+c = CONTENT[lang]
+
+# ============ 界面渲染 ============
+st.markdown(f"<h2 style='text-align:center;'>{c['title']}</h2>", unsafe_allow_html=True)
+st.markdown(f"<p style='text-align:center; color:gray;'>{c['desc']}</p>", unsafe_allow_html=True)
+
+col1, col2 = st.columns(2)
+with col1:
+    feno = st.number_input(c['labels'][0], 0, 200, 25)
+    age = st.number_input(c['labels'][1], 0, 48, 34)
+    tptef = st.number_input(c['labels'][2], 5, 60, 23)
+
+with col2:
+    wheeze = st.selectbox(c['labels'][3], ["No/否", "Yes/是"])
+    fam = st.selectbox(c['labels'][4], ["No/否", "Yes/是"])
+    rhinitis = st.selectbox(c['labels'][5], ["No/否", "Yes/是"])
+    allergy = st.selectbox(c['labels'][6], ["No/否", "Yes/是"])
+
+# ============ 计算逻辑 ============
+# 转换分类变量
+val_w = 1 if "Yes" in wheeze else 0
+val_f = 1 if "Yes" in fam else 0
+val_r = 1 if "Yes" in rhinitis else 0
+val_a = 1 if "Yes" in allergy else 0
+
+# 构建 Logit 公式 
+logit_p = (B0 + 
+           COEFFICIENTS["FeNO"] * feno + 
+           COEFFICIENTS["Age"] * age + 
+           COEFFICIENTS["FamilyHistory"] * val_f + 
+           COEFFICIENTS["Rhinitis"] * val_r + 
+           COEFFICIENTS["Allergy"] * val_a + 
+           COEFFICIENTS["TPTEF_TE"] * tptef + 
+           COEFFICIENTS["Wheeze"] * val_w)
+
+p = 1 / (1 + np.exp(-logit_p))
+
+# ============ 结果展示 ============
+st.markdown("---")
+st.markdown(f"### {c['prob_text']} **{p*100:.1f}%**")
+
+if p < 0.3:
+    st.success(f"**{c['risk_level']}** {c['levels'][0]}")
+elif p < 0.7:
+    st.warning(f"**{c['risk_level']}** {c['levels'][1]}")
+else:
+    st.error(f"**{c['risk_level']}** {c['levels'][2]}")
+
+# 风险梯度条
+fig, ax = plt.subplots(figsize=(6, 0.6))
+gradient = np.linspace(0, 1, 256).reshape(1, -1)
+ax.imshow(gradient, aspect='auto', cmap="RdYlGn_r", extent=[0, 100, 0, 1])
+ax.axvline(p*100, color='black', linestyle='--', linewidth=2)
+ax.set_xlim(0, 100)
+ax.set_yticks([])
+ax.set_xlabel(f"{c['prob_text']} (%)", fontsize=10)
+st.pyplot(fig)
+
+st.markdown(f"<br><p style='color:gray; font-size:12px; text-align:center;'>{c['footer']}</p>", unsafe_allow_html=True)
+
